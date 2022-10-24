@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "sha1.h": "c",
+        "sha3.h": "c",
+        "sha.h": "c"
+    }
+}

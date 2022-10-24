@@ -5,7 +5,9 @@
 #ifndef SHA1_H
 #define SHA1_H
 
+#define SHA1_OUT 160 >> 3
 #define SHA1_NR 80
+#define SHA1_BLOCK_LEN 64
 
 // SHA1 constants
 extern unsigned int sha1_h[5];

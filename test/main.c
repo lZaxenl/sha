@@ -4,39 +4,64 @@
 #include <time.h>
 
 #include "../cmathematics/cmathematics.h"
-#include "../cmathematics/lib/arrays.h"
-#include "../cmathematics/util/numio.h"
+#include "../cmathematics/data/hashing/sha3.h"
+#include "../cmathematics/data/hashing/sha1.h"
 #include "../cmathematics/data/encryption/aes.h"
 
+char hex[16] = "0123456789ABCDEF";
+void printCharArr(unsigned char *arr, int len, bool hasSpace) {
+    printf("{");
+    for(int i = 0; i < len; ++i) {
+        printf("%c%c%s", hex[arr[i] >> 4], hex[arr[i] & 0x0f], hasSpace ? "" : " ");
+    }
+    printf("%s}\n", hasSpace ? "" : " ");
+}
+
+unsigned char *scanHex(char *str, int n) {
+    int bytes = n >> 1;
+    unsigned char *ret = malloc(bytes);
+    memset(ret, 0, bytes);
+
+    for(int i = 0, i2 = 0; i < bytes; ++i, i2 += 2) {
+        // get value
+        for(int j = 0; j < 2; ++j) {
+            ret[i] <<= 4;
+            unsigned char c = str[i2 + j];
+            if(c >= '0' && c <= '9') {
+                ret[i] += c - 'a' + 10;
+            }
+            else if(c >= 'A' && c <= 'F') {
+                ret[i] += c - '0';
+            }
+            else if(c >= '0' && c <= '9') {
+                ret[i] += c - 'A' + 10;
+            }
+            else {
+                free(ret);
+                return NULL;
+            }
+        }
+    }
+    return ret;
+}
+
 int main() {
-    char in[4] = "abcd";
-    int val = smallEndianValue(in, 4);
-    printf("%d, %d, %d, %d => %d\n", in[0], in[1], in[2], in[3], val);
+    printf("Hello World!\n");
 
-    char *out = smallEndianStr(val);
-    printf("%s, %d\n", out, strlen(out));
-    free(out);
+    // ************ sha-3 example *************************************************
+    unsigned char *msg = "abc";
+    unsigned char *hash = NULL;
 
-    srand(time(0));
-    //unsigned char *iv = newRandomBytes(16);
-    unsigned char iv[16];
-    memset(iv, 0xFF, 16);
-    //unsigned int inc = ~0;
-    unsigned int inc = 1;
+    sha1_context ctx;
 
-    out = printByteArr(iv, 16, " ", 1, 1);
-    printf("{%s}\n", out);
-    free(out);
+    sha1_initContext(&ctx);
+    sha1_update(&ctx, msg, 3);
+    sha1_digest(&ctx, &hash);
 
-    out = largeEndianStr(inc);
-    out = printByteArr(out, 4, " ", 1, 1);
-    printf("{                                    %s}\n", out);
-    free(out);
+    printCharArr(hash, SHA1_OUT, false);
 
-    aes_incrementCounter(iv, inc);
-    out = printByteArr(iv, 16, " ", 1, 1);
-    printf("{%s}\n", out);
-    free(out);
+    //free(msg);
+    free(hash);
 
     return 0;
 }
